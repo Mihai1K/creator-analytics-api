@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Инбокс заявок — Mediacentr (внутреннее)</title>
+<style>
+  :root{--bg:#0A0E27;--card:#141a3a;--card2:#1b2145;--line:rgba(255,255,255,.09);
+    --tx:#EEF1FF;--mut:#9aa3cc;--vio:#8B5CF6;--mag:#EC4899;--g:#22c55e;--y:#eab308;--r:#ef4444}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--tx);font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:24px 16px}
+  .wrap{max-width:860px;margin:0 auto}
+  .top{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  .mark{width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,var(--vio),var(--mag))}
+  h1{font-size:21px;font-weight:600}
+  .warn{font-size:12px;color:#ffd6a6;background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.28);
+    border-radius:8px;padding:6px 10px;margin-left:auto}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+  .chip{font-size:13px;padding:6px 12px;border-radius:20px;background:var(--card);border:1px solid var(--line);
+    color:var(--mut);cursor:pointer}
+  .chip.on{background:var(--vio);color:#fff;border-color:transparent}
+  .empty{color:var(--mut);text-align:center;padding:40px;font-size:14px}
+  .lead{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+  .lh{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
+  .contact{font-size:16px;font-weight:600}
+  .copy{background:var(--card2);border:1px solid var(--line);color:var(--mut);border-radius:8px;
+    padding:3px 9px;font-size:12px;cursor:pointer;margin-left:8px}
+  .copy:hover{color:var(--tx)}
+  .ch a{color:#9ec1ff;font-size:13px;text-decoration:none}
+  .when{margin-left:auto;text-align:right;font-size:12px;color:var(--mut);white-space:nowrap}
+  .when .due{color:#ffcf8f}
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+  .m{background:var(--card2);border-radius:9px;padding:8px 10px}
+  .m .k{font-size:11px;color:var(--mut)}
+  .m .v{font-size:16px;font-weight:600}
+  .internal{background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);border-radius:10px;
+    padding:10px 12px;margin:12px 0}
+  .internal .tag{font-size:10px;letter-spacing:.4px;text-transform:uppercase;color:#c4b6ff;margin-bottom:6px}
+  .internal .row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .internal .big{font-size:20px;font-weight:700}
+  .risks{color:var(--mut);font-size:13px;margin-top:6px;line-height:1.5}
+  .statuses{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 10px}
+  .st{font-size:12px;padding:6px 11px;border-radius:8px;background:var(--card2);border:1px solid var(--line);
+    color:var(--mut);cursor:pointer}
+  .st.on{color:#fff;border-color:transparent}
+  .st.on.new{background:#3b82f6}.st.on.in_progress{background:#a855f7}.st.on.sent{background:#0ea5e9}
+  .st.on.deal{background:#22c55e}.st.on.rejected{background:#6b7280}
+  textarea{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:9px;color:var(--tx);
+    padding:9px 11px;font-size:13px;font-family:inherit;resize:vertical;min-height:44px;outline:none}
+  textarea:focus{border-color:var(--vio)}
+  .note-row{display:flex;gap:8px;align-items:flex-start;margin-top:8px}
+  .save{background:var(--card2);border:1px solid var(--line);color:var(--mut);border-radius:8px;
+    padding:8px 12px;font-size:13px;cursor:pointer;white-space:nowrap}
+  .save:hover{color:var(--tx)}
+  .saved{color:#7ee2a8;font-size:12px;align-self:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="mark"></div><h1>Инбокс заявок</h1>
+    <span class="warn">🔒 внутреннее · только localhost</span>
+  </div>
+  <div class="bar" id="filters"></div>
+  <div id="list"><div class="empty">Загрузка…</div></div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+let DATA={labels:{},leads:[]}, FILTER="all";
+const ORDER=["new","in_progress","sent","deal","rejected"];
+
+function fmt(n){ if(n==null) return "—";
+  if(n>=1e6) return (n/1e6).toFixed(n%1e6?1:0).replace(".",",")+" млн";
+  if(n>=1e3) return (n/1e3).toFixed(n%1e3?1:0).replace(".",",")+" тыс"; return String(n); }
+function dt(iso){ return new Date(iso).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}); }
+function due(iso){ // +1 рабочий день
+  const d=new Date(iso); d.setDate(d.getDate()+1);
+  if(d.getDay()===6) d.setDate(d.getDate()+2); else if(d.getDay()===0) d.setDate(d.getDate()+1);
+  return d.toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit"});
+}
+
+async function load(){
+  const r=await fetch("/review-leads"); DATA=await r.json();
+  renderFilters(); render();
+}
+function renderFilters(){
+  const counts={all:DATA.leads.length};
+  ORDER.forEach(s=>counts[s]=DATA.leads.filter(l=>l.status===s).length);
+  const f=$("#filters"); f.innerHTML="";
+  const mk=(k,label)=>`<div class="chip ${FILTER===k?'on':''}" data-f="${k}">${label} · ${counts[k]||0}</div>`;
+  f.innerHTML=mk("all","Все")+ORDER.map(s=>mk(s,DATA.labels[s])).join("");
+  f.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{FILTER=c.dataset.f;renderFilters();render();});
+}
+function render(){
+  const leads=DATA.leads.filter(l=>FILTER==="all"||l.status===FILTER);
+  const box=$("#list");
+  if(!leads.length){ box.innerHTML='<div class="empty">Заявок нет</div>'; return; }
+  box.innerHTML=leads.map(card).join("");
+  box.querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>{navigator.clipboard.writeText(b.dataset.copy);b.textContent="скопировано";setTimeout(()=>b.textContent="копировать",1200);});
+  box.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>setStatus(+b.dataset.id,b.dataset.st));
+  box.querySelectorAll("[data-savenote]").forEach(b=>b.onclick=()=>saveNote(+b.dataset.savenote));
+}
+function card(l){
+  const s=l.snapshot||{};
+  const er=s.view_rate!=null?(s.view_rate*100).toFixed(0)+"%":"—";
+  const statuses=ORDER.map(st=>`<div class="st ${st} ${l.status===st?'on '+st:''}" data-st="${st}" data-id="${l.id}">${DATA.labels[st]}</div>`).join("");
+  const risks=(l.risk_reasons||[]).length?`<div class="risks">⚠️ ${l.risk_reasons.join(" · ")}</div>`:"";
+  return `<div class="lead">
+    <div class="lh">
+      <div>
+        <span class="contact">${l.contact}</span>
+        <button class="copy" data-copy="${l.contact}">копировать</button>
+        <div class="ch"><a href="${l.channel_url}" target="_blank" rel="noopener">${l.channel_url}</a>${l.email?` · ${l.email}`:""}</div>
+      </div>
+      <div class="when">${dt(l.created_at)}<br><span class="due">ответить до ${due(l.created_at)}</span></div>
+    </div>
+    <div class="metrics">
+      <div class="m"><div class="k">Подписчики</div><div class="v">${fmt(s.subscribers)}</div></div>
+      <div class="m"><div class="k">Просмотры</div><div class="v">${fmt(s.median_views)}</div></div>
+      <div class="m"><div class="k">View rate</div><div class="v">${er}</div></div>
+      <div class="m"><div class="k">Постов/нед</div><div class="v">${s.posts_per_week??"—"}</div></div>
+    </div>
+    <div class="internal">
+      <div class="tag">внутреннее · не показывать клиенту</div>
+      <div class="row">
+        <span>${l.verdict||"—"}</span>
+        <span>Score <b class="big">${l.score??"—"}</b></span>
+        <span>Pulse <b class="big">${l.pulse??"—"}</b></span>
+        <span>Risk <b class="big">${l.risk_score??"—"}</b></span>
+      </div>${risks}
+    </div>
+    <div class="statuses">${statuses}</div>
+    <div class="note-row">
+      <textarea id="note-${l.id}" placeholder="Заметка специалиста…">${l.note||""}</textarea>
+      <button class="save" data-savenote="${l.id}">Сохранить</button>
+      <span class="saved" id="saved-${l.id}" style="display:none">✓</span>
+    </div>
+  </div>`;
+}
+async function setStatus(id,status){
+  await fetch("/review-leads/"+id,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({status})});
+  const l=DATA.leads.find(x=>x.id===id); if(l) l.status=status;
+  renderFilters(); render();
+}
+async function saveNote(id){
+  const note=$("#note-"+id).value;
+  await fetch("/review-leads/"+id,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({note})});
+  const l=DATA.leads.find(x=>x.id===id); if(l) l.note=note;
+  const s=$("#saved-"+id); s.style.display="inline"; setTimeout(()=>s.style.display="none",1500);
+}
+load();
+</script>
+</body>
+</html>

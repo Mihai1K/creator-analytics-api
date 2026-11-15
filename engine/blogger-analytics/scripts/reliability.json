@@ -1,0 +1,94 @@
+{
+  "label": "Telegram (t.me/s server_html)",
+  "profiles": 28,
+  "parsed_ok": 17,
+  "parse_success_pct": 60.7,
+  "avg_seconds": 39.22,
+  "fields": [
+    {
+      "field": "name",
+      "fill_rate": 100.0,
+      "confidence": "high",
+      "n": 17
+    },
+    {
+      "field": "subscribers",
+      "fill_rate": 100.0,
+      "confidence": "high",
+      "n": 17
+    },
+    {
+      "field": "description",
+      "fill_rate": 100.0,
+      "confidence": "high",
+      "n": 17
+    },
+    {
+      "field": "total_posts",
+      "fill_rate": 100.0,
+      "confidence": "high",
+      "n": 17
+    },
+    {
+      "field": "posts_sampled",
+      "fill_rate": 100.0,
+      "confidence": "high",
+      "n": 17
+    },
+    {
+      "field": "avg_views",
+      "fill_rate": 100.0,
+      "confidence": "high",
+      "n": 17
+    },
+    {
+      "field": "median_views",
+      "fill_rate": 100.0,
+      "confidence": "high",
+      "n": 17
+    },
+    {
+      "field": "views_spread",
+      "fill_rate": 100.0,
+      "confidence": "high",
+      "n": 17
+    },
+    {
+      "field": "view_rate",
+      "fill_rate": 100.0,
+      "confidence": "high",
+      "n": 17
+    },
+    {
+      "field": "posts_per_week",
+      "fill_rate": 100.0,
+      "confidence": "high",
+      "n": 17
+    },
+    {
+      "field": "avg_interval_h",
+      "fill_rate": 100.0,
+      "confidence": "high",
+      "n": 17
+    },
+    {
+      "field": "regularity",
+      "fill_rate": 100.0,
+      "confidence": "high",
+      "n": 17
+    },
+    {
+      "field": "deleted_pct",
+      "fill_rate": 100.0,
+      "confidence": "high",
+      "n": 17
+    },
+    {
+      "field": "last_post",
+      "fill_rate": 100.0,
+      "confidence": "high",
+      "n": 17
+    }
+  ],
+  "downgrades": []
+}

@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Проверьте блогера перед покупкой рекламы — Mediacentr</title>
+<style>
+  :root{--bg:#0A0E27;--card:#141a3a;--card2:#1b2145;--line:rgba(255,255,255,.09);
+    --tx:#EEF1FF;--mut:#9aa3cc;--vio:#8B5CF6;--mag:#EC4899;--g:#22c55e;--y:#eab308;--r:#ef4444}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1200px 600px at 50% -10%,#1a2050,transparent),var(--bg);
+    color:var(--tx);font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh;padding:34px 16px}
+  .wrap{max-width:620px;margin:0 auto}
+  .brand{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:14px}
+  .mark{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--vio),var(--mag))}
+  h1{font-size:27px;font-weight:700;text-align:center;letter-spacing:-.2px;line-height:1.25}
+  .sub{text-align:center;color:var(--mut);margin:12px auto 26px;font-size:15px;max-width:520px;line-height:1.55}
+  .searchbar{display:flex;gap:10px}
+  input{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:15px 16px;color:var(--tx);font-size:16px;outline:none;width:100%}
+  input:focus{border-color:var(--vio)}
+  button.go{background:linear-gradient(135deg,var(--vio),var(--mag));color:#fff;border:0;
+    border-radius:14px;padding:0 24px;font-size:16px;font-weight:600;cursor:pointer;white-space:nowrap}
+  button.go:disabled{opacity:.55;cursor:default}
+  button.wide{width:100%;padding:15px}
+  .hint{color:var(--mut);font-size:13px;margin-top:10px;text-align:center}
+  .hint b{color:#c9d0ff;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+  .msg{margin-top:18px;padding:14px 16px;border-radius:12px;font-size:14px;display:none;line-height:1.5}
+  .msg.show{display:block}
+  .msg.err{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.32);color:#ffc9c9}
+  .msg.warn{background:rgba(234,179,8,.12);border:1px solid rgba(234,179,8,.3);color:#ffe9a6}
+  .step2{margin-top:22px;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:none}
+  .step2.show{display:block;animation:up .25s ease}
+  @keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .found{padding:16px 22px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);
+    background:rgba(34,197,94,.09)}
+  .found .ok{width:30px;height:30px;border-radius:50%;background:rgba(34,197,94,.2);color:#7ee2a8;
+    display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+  .found .nm{font-weight:600}
+  .found .meta{color:var(--mut);font-size:13px}
+  .body{padding:20px 22px}
+  .body h3{font-size:17px;font-weight:600;margin-bottom:6px}
+  .body .p{color:var(--mut);font-size:14px;line-height:1.5;margin-bottom:14px}
+  .list{list-style:none;margin:0 0 18px;padding:0}
+  .list li{color:#d4d9f5;font-size:14px;padding:5px 0 5px 22px;position:relative}
+  .list li:before{content:"•";position:absolute;left:6px;color:var(--vio)}
+  label{display:block;font-size:13px;color:var(--mut);margin:0 0 6px}
+  .field{margin-bottom:14px}
+  .req{color:var(--mag)}
+  .success{padding:34px 24px;text-align:center;display:none}
+  .success.show{display:block;animation:up .3s ease}
+  .success .em{font-size:40px}
+  .success h3{font-size:20px;font-weight:700;margin:12px 0 8px}
+  .success .p{color:var(--mut);font-size:14px;line-height:1.6;max-width:420px;margin:0 auto}
+  .foot{padding:14px 22px;color:var(--mut);font-size:12px;border-top:1px solid var(--line);line-height:1.5}
+  @media(max-width:520px){.searchbar{flex-direction:column}button.go{padding:14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><div class="mark"></div><span style="font-weight:600;color:var(--mut)">mediacentr</span></div>
+  <h1>Проверьте блогера перед покупкой рекламы</h1>
+  <div class="sub">Вставьте ссылку на Telegram-канал. Бесплатно проверим открытые показатели и пришлём экспресс-разбор от специалиста — стоит ли брать площадку под рекламу.</div>
+
+  <!-- ШАГ 1 -->
+  <div id="s1">
+    <div class="searchbar">
+      <input id="q" placeholder="https://t.me/канал или @канал" autocomplete="off" spellcheck="false">
+      <button class="go" id="btn">Проверить бесплатно</button>
+    </div>
+    <div class="hint">Например: <b data-ex="durov">durov</b> · <b data-ex="telegram">telegram</b></div>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <!-- ШАГ 2 -->
+  <div class="step2" id="s2">
+    <div class="found">
+      <div class="ok">✓</div>
+      <div>
+        <div class="nm" id="f-name">Канал найден</div>
+        <div class="meta" id="f-meta"></div>
+      </div>
+    </div>
+    <div class="body">
+      <h3>Куда отправить бесплатный экспресс-разбор?</h3>
+      <div class="p">В разборе:</div>
+      <ul class="list">
+        <li>подписчики и реальные просмотры</li>
+        <li>активность и регулярность аудитории</li>
+        <li>возможные признаки завышенных показателей</li>
+        <li>ориентир по стоимости рекламы</li>
+        <li>краткая рекомендация: стоит рассматривать или нет</li>
+      </ul>
+      <div class="field">
+        <label>Telegram или телефон <span class="req">*</span></label>
+        <input id="contact" placeholder="@ваш_ник или +7 900 000-00-00" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Email (необязательно)</label>
+        <input id="email" placeholder="you@example.com" autocomplete="off">
+      </div>
+      <button class="go wide" id="send">Получить разбор</button>
+      <div class="msg" id="msg2"></div>
+    </div>
+    <div class="foot">Разбор подготовит специалист и отправит в течение рабочего дня. Без подписки и обязательств.</div>
+  </div>
+
+  <!-- УСПЕХ -->
+  <div class="step2 success" id="ok">
+    <div class="em">🎉</div>
+    <h3>Заявка принята</h3>
+    <div class="p" id="ok-text">Экспресс-разбор подготовит специалист и пришлёт в течение рабочего дня. Без подписки и обязательств.</div>
+  </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+let CHANNEL="";
+
+function fmt(n){
+  if(n===null||n===undefined) return "";
+  if(n>=1e6) return (n/1e6).toFixed(n%1e6?1:0).replace(".",",")+" млн";
+  if(n>=1e3) return (n/1e3).toFixed(n%1e3?1:0).replace(".",",")+" тыс";
+  return String(n);
+}
+function show(el,cls,text){ el.className="msg show "+cls; el.textContent=text; }
+function hide(el){ el.className="msg"; }
+
+// «Настоящая» проверка: состояния найден / не найден / приватный / временная ошибка
+async function checkChannel(){
+  const url=$("#q").value.trim(); if(!url) return;
+  hide($("#msg")); $("#btn").disabled=true; $("#btn").textContent="Проверяем…";
+  try{
+    const r=await fetch("/check",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url})});
+    const d=await r.json();
+    if(r.status===429){ show($("#msg"),"warn","⏳ "+d.detail); return; }
+    if(!r.ok){
+      const t=(d.detail||"").toLowerCase();
+      if(t.includes("анти-флуд")||t.includes("повторите")) show($("#msg"),"warn","⏳ Временная ошибка Telegram. Попробуйте через минуту.");
+      else show($("#msg"),"err","❌ Канал не найден или закрыт. Если он приватный — публичные данные недоступны. Проверьте ссылку.");
+      return;
+    }
+    // НАЙДЕН — показываем минимальное подтверждение (не полный разбор), открываем контакт-форму
+    CHANNEL=d.facts.url||url;
+    $("#f-name").textContent="Канал найден: "+(d.facts.name||d.facts.username||"");
+    $("#f-meta").textContent=[
+      d.facts.subscribers?fmt(d.facts.subscribers)+" подписчиков":"",
+      d.facts.median_views?"~"+fmt(d.facts.median_views)+" просмотров":""
+    ].filter(Boolean).join(" · ");
+    $("#s1").style.display="none";
+    $("#s2").classList.add("show");
+  }catch(e){
+    show($("#msg"),"err","❌ Ошибка соединения. Попробуйте ещё раз.");
+  }finally{
+    $("#btn").disabled=false; $("#btn").textContent="Проверить бесплатно";
+  }
+}
+
+// Тип контакта: телефон, если это в основном цифры/«+», иначе Telegram
+function detectType(v){
+  const digits=(v.match(/\d/g)||[]).length;
+  const looksPhone=/^[+\d][\d\s()\-]{6,}$/.test(v.trim()) && digits>=7;
+  return looksPhone?"phone":"telegram";
+}
+
+async function sendLead(){
+  const contact=$("#contact").value.trim();
+  hide($("#msg2"));
+  if(!contact){ show($("#msg2"),"err","Укажите Telegram или телефон"); return; }
+  $("#send").disabled=true; $("#send").textContent="Отправляем…";
+  try{
+    const r=await fetch("/review-lead",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({channel_url:CHANNEL,contact_type:detectType(contact),contact,email:$("#email").value.trim()||null})});
+    const d=await r.json();
+    if(!r.ok){ show($("#msg2"),"err","⚠️ "+(d.detail||"ошибка")); return; }
+    $("#ok-text").textContent="Экспресс-разбор по каналу пришлём на "+contact+" в течение рабочего дня. Без подписки и обязательств.";
+    $("#s2").classList.remove("show");
+    $("#ok").classList.add("show");
+  }catch(e){
+    show($("#msg2"),"err","⚠️ Ошибка соединения. Попробуйте ещё раз.");
+  }finally{
+    $("#send").disabled=false; $("#send").textContent="Получить разбор";
+  }
+}
+
+$("#btn").onclick=checkChannel;
+$("#q").addEventListener("keydown",e=>{if(e.key==="Enter")checkChannel()});
+$("#send").onclick=sendLead;
+document.querySelectorAll(".hint b").forEach(b=>b.onclick=()=>{$("#q").value=b.dataset.ex;checkChannel()});
+</script>
+</body>
+</html>

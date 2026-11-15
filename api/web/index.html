@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Проверка блогера — Mediacentr</title>
+<style>
+  :root{
+    --bg:#0A0E27; --card:#141a3a; --card2:#1b2145; --line:rgba(255,255,255,.09);
+    --tx:#EEF1FF; --mut:#9aa3cc; --vio:#8B5CF6; --mag:#EC4899;
+    --g:#22c55e; --y:#eab308; --r:#ef4444;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1200px 600px at 50% -10%,#1a2050,transparent),var(--bg);
+    color:var(--tx);font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh;padding:32px 16px}
+  .wrap{max-width:680px;margin:0 auto}
+  .brand{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:6px}
+  .mark{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--vio),var(--mag))}
+  h1{font-size:26px;font-weight:700;text-align:center;letter-spacing:-.2px}
+  .sub{text-align:center;color:var(--mut);margin:8px 0 26px;font-size:15px}
+  .searchbar{display:flex;gap:10px}
+  input{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:15px 16px;color:var(--tx);font-size:16px;outline:none}
+  input:focus{border-color:var(--vio)}
+  button.go{background:linear-gradient(135deg,var(--vio),var(--mag));color:#fff;border:0;
+    border-radius:14px;padding:0 24px;font-size:16px;font-weight:600;cursor:pointer;white-space:nowrap}
+  button.go:disabled{opacity:.55;cursor:default}
+  .hint{color:var(--mut);font-size:13px;margin-top:10px;text-align:center}
+  .hint b{color:#c9d0ff;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+  .mk{display:flex;align-items:center;gap:10px;margin-top:12px;justify-content:center;flex-wrap:wrap}
+  .mk-l{color:var(--mut);font-size:13px}
+  .mk input{flex:0 1 320px;background:var(--card);border:1px solid var(--line);border-radius:11px;
+    padding:10px 13px;color:var(--tx);font-size:14px;outline:none}
+  .mk input:focus{border-color:var(--vio)}
+  .audit{display:none;padding:16px 22px;font-size:15px;font-weight:600;border-bottom:1px solid var(--line)}
+  .audit.show{display:block}
+  .audit.r{background:rgba(239,68,68,.14);color:#ffd0d0}
+  .audit.y{background:rgba(234,179,8,.13);color:#ffe9a6}
+  .audit.g{background:rgba(34,197,94,.12);color:#bbf7d0}
+  .audit .big{font-size:24px;font-weight:800;margin-left:6px}
+  .audit .det{display:block;font-weight:400;font-size:13px;color:var(--mut);margin-top:8px}
+  .msg{margin-top:20px;padding:14px 16px;border-radius:12px;font-size:14px;display:none}
+  .msg.err{display:block;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);color:#ffc9c9}
+  .card{margin-top:22px;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:none}
+  .card.show{display:block;animation:up .25s ease}
+  @keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .head{padding:20px 22px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--line)}
+  .ava{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--vio),var(--mag));
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0}
+  .head .nm{font-size:18px;font-weight:600}
+  .head .un{color:var(--mut);font-size:14px}
+  .badges{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  .pill{font-size:11px;padding:4px 9px;border-radius:20px;background:var(--card2);color:var(--mut);border:1px solid var(--line)}
+  .sect-t{padding:16px 22px 4px;font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--mut)}
+  .facts{padding:6px 22px 18px;display:grid;grid-template-columns:1fr 1fr;gap:2px 18px}
+  .fact{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:14px}
+  .fact .k{color:var(--mut)}
+  .fact .v{font-weight:600}
+  .gated{position:relative;margin:0 14px 16px;border-radius:14px;background:var(--card2);border:1px solid var(--line);overflow:hidden}
+  .gated .inner{padding:18px 22px;filter:blur(7px);pointer-events:none;user-select:none}
+  .verdict-row{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+  .vscore{font-size:34px;font-weight:800}
+  .blocks{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .bl{background:var(--card);border-radius:10px;padding:10px 12px}
+  .bl .bk{font-size:11px;color:var(--mut)}
+  .bl .bv{font-size:18px;font-weight:700}
+  .lock{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+    background:linear-gradient(180deg,rgba(20,26,58,.35),rgba(20,26,58,.72))}
+  .lock .ico{font-size:22px}
+  .lock .lt{font-weight:600;font-size:15px}
+  .lock .ls{color:var(--mut);font-size:13px;max-width:320px;text-align:center;line-height:1.5}
+  .unlock{margin-top:6px;background:#fff;color:#141a3a;border:0;border-radius:11px;padding:11px 20px;font-weight:600;font-size:14px;cursor:pointer}
+  .foot{padding:12px 22px 18px;color:var(--mut);font-size:12px;border-top:1px solid var(--line)}
+  @media(max-width:520px){.facts{grid-template-columns:1fr}.blocks{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><div class="mark"></div><span style="font-weight:600;color:var(--mut)">mediacentr</span></div>
+  <h1>Проверка блогера за 20 секунд</h1>
+  <div class="sub">Вставьте ссылку на Telegram-канал — покажем реальные метрики и оценку качества</div>
+
+  <div class="searchbar">
+    <input id="q" placeholder="https://t.me/durov или @durov" autocomplete="off" spellcheck="false">
+    <button class="go" id="btn">Проверить</button>
+  </div>
+  <div class="hint">Например: <b data-ex="durov">durov</b> · <b data-ex="telegram">telegram</b> · <b data-ex="demo_creator">demo_creator</b></div>
+
+  <div class="mk">
+    <span class="mk-l">📄 Есть медиакит?</span>
+    <input id="claim" placeholder="заявленные подписчики, напр. 1900000" inputmode="numeric" autocomplete="off">
+  </div>
+
+  <div class="msg" id="err"></div>
+
+  <div class="card" id="card">
+    <div class="head">
+      <div class="ava" id="ava">?</div>
+      <div>
+        <div class="nm" id="nm"></div>
+        <div class="un" id="un"></div>
+      </div>
+      <div class="badges" id="badges"></div>
+    </div>
+
+    <div class="audit" id="audit"></div>
+
+    <div class="sect-t">Открытые данные</div>
+    <div class="facts" id="facts"></div>
+
+    <div class="sect-t">Полный отчёт</div>
+    <div class="gated">
+      <div class="inner">
+        <div class="verdict-row">
+          <div class="vscore" id="g-score">73</div>
+          <div>
+            <div style="font-size:13px;color:var(--mut)">Trust Score / Вердикт</div>
+            <div style="font-size:20px" id="g-verdict">🟡</div>
+          </div>
+          <div style="margin-left:auto;text-align:right">
+            <div style="font-size:13px;color:var(--mut)">Pulse</div>
+            <div style="font-size:24px;font-weight:700" id="g-pulse">50</div>
+          </div>
+        </div>
+        <div class="blocks">
+          <div class="bl"><div class="bk">Аудитория</div><div class="bv">70</div></div>
+          <div class="bl"><div class="bk">Вовлечённость</div><div class="bv">90</div></div>
+          <div class="bl"><div class="bk">Риск/накрутка</div><div class="bv">75</div></div>
+        </div>
+      </div>
+      <div class="lock">
+        <div class="ico">🔒</div>
+        <div class="lt">Trust Score, риски и аудит медиакита</div>
+        <div class="ls">Оценка качества аудитории, признаки накрутки и сверка заявленного с фактом — в полном отчёте</div>
+        <button class="unlock" id="unlock">Показать полный отчёт →</button>
+      </div>
+    </div>
+
+    <div class="foot" id="foot"></div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const q=$("#q"), btn=$("#btn"), err=$("#err"), card=$("#card");
+
+function fmt(n){
+  if(n===null||n===undefined) return "—";
+  if(typeof n==="number"){
+    if(n>=1e6) return (n/1e6).toFixed(n%1e6?1:0).replace(".",",")+" млн";
+    if(n>=1e3) return (n/1e3).toFixed(n%1e3?1:0).replace(".",",")+" тыс";
+    return String(n);
+  }
+  return n;
+}
+function ago(iso){
+  if(!iso) return "—";
+  const d=(Date.now()-new Date(iso))/86400000;
+  if(d<1) return "сегодня"; if(d<2) return "вчера";
+  return Math.round(d)+" дн назад";
+}
+
+async function run(){
+  const url=q.value.trim(); if(!url) return;
+  err.classList.remove("err"); card.classList.remove("show");
+  btn.disabled=true; btn.textContent="Проверяем…";
+  try{
+    const body={url};
+    const claim=parseInt(($("#claim").value||"").replace(/\D/g,""),10);
+    if(claim) body.claimed_subscribers=claim;
+    const r=await fetch("/check",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const data=await r.json();
+    if(!r.ok){ throw new Error(data.detail||"ошибка проверки"); }
+    render(data);
+  }catch(e){
+    err.textContent="⚠️ "+e.message; err.classList.add("err");
+  }finally{
+    btn.disabled=false; btn.textContent="Проверить";
+  }
+}
+
+function render(d){
+  const f=d.facts, v=d.verdict||{};
+  $("#nm").textContent=f.name||f.username||"—";
+  $("#un").textContent="@"+(f.username||"")+" · Telegram";
+  $("#ava").textContent=(f.name||f.username||"?").trim()[0].toUpperCase();
+
+  const badges=$("#badges"); badges.innerHTML="";
+  badges.insertAdjacentHTML("beforeend",`<span class="pill">${d.from_cache?"из кэша":"свежая проверка"}</span>`);
+  badges.insertAdjacentHTML("beforeend",`<span class="pill">движок v${d.engine_version}</span>`);
+
+  const a=$("#audit"); a.className="audit"; a.innerHTML="";
+  if(d.audit){
+    const dev=d.audit.max_deviation_pct;
+    const cls=dev>=50?"r":dev>=20?"y":"g";
+    const ff=(d.audit.fields||[]).find(x=>x.field==="followers"&&x.actual!=null);
+    a.className="audit show "+cls;
+    a.innerHTML = ff
+      ? `Медиакит vs факт: заявлено ${fmt(ff.claimed)}, реально ${fmt(ff.actual)}<span class="big">${ff.deviation_pct>0?'+':''}${ff.deviation_pct}%</span><span class="det">${d.audit.overall}</span>`
+      : `<span class="det" style="font-size:15px;color:inherit">${d.audit.overall}</span>`;
+  }
+
+  const er = f.view_rate!=null ? (f.view_rate*100).toFixed(0)+"%" : "—";
+  const facts=[
+    ["Подписчики",fmt(f.subscribers)],
+    ["Просмотры (медиана)",fmt(f.median_views)],
+    ["View rate",er],
+    ["Постов в неделю",f.posts_per_week??"—"],
+    ["Регулярность (CV)",f.regularity??"—"],
+    ["Последний пост",ago(f.last_post)],
+    ["Постов в выборке",f.posts_sampled??"—"],
+    ["Источник",(f.trust==="public"?"публичный t.me":f.source)||"—"],
+  ];
+  $("#facts").innerHTML=facts.map(([k,val])=>`<div class="fact"><span class="k">${k}</span><span class="v">${val}</span></div>`).join("");
+
+  // gated preview values (blurred anyway) — pull from real report so blur looks real
+  if(v.total!=null) $("#g-score").textContent=v.total;
+  if(v.verdict) $("#g-verdict").textContent=v.verdict;
+  if(v.pulse!=null) $("#g-pulse").textContent=v.pulse;
+  const b=v.blocks||{}; const bls=$(".blocks").children;
+  if(b.audience!=null) bls[0].querySelector(".bv").textContent=b.audience;
+  if(b.engagement!=null) bls[1].querySelector(".bv").textContent=b.engagement;
+  if(b.risk!=null) bls[2].querySelector(".bv").textContent=b.risk;
+
+  $("#foot").textContent="Проверено: "+new Date(d.checked_at).toLocaleString("ru-RU")+" · открытые данные индексируются, полный отчёт — после регистрации";
+  card.classList.add("show");
+}
+
+btn.onclick=run;
+q.addEventListener("keydown",e=>{if(e.key==="Enter")run()});
+document.querySelectorAll(".hint b").forEach(b=>b.onclick=()=>{q.value=b.dataset.ex;run()});
+$("#unlock").onclick=()=>alert("Демо: здесь будет регистрация → полный отчёт (Trust Score, риски, аудит медиакита).\nЭто и есть точка захвата лида в CRM.");
+</script>
+</body>
+</html>
